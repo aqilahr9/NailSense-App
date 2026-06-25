@@ -1275,22 +1275,28 @@ NailSense adalah alat bantu skrining awal — **bukan pengganti pemeriksaan medi
 # ==========================================
 # 10. HALAMAN RIWAYAT
 # ==========================================
+@st.cache_data
+def get_riwayat_data(username, db_path):
+    conn = sqlite3.connect(db_path)
+    df = pd.read_sql_query(
+        "SELECT tanggal, hasil, confidence FROM history WHERE username=? ORDER BY id DESC",
+        conn,
+        params=(username,)
+    )
+    conn.close()
+    return df
+    
 def page_riwayat():
     render_logo()
     render_page_title("📊 Riwayat Skrining")
 
-    conn = sqlite3.connect(DB_PATH)
-    df   = pd.read_sql_query(
-        "SELECT tanggal, hasil, confidence FROM history WHERE username=? ORDER BY id DESC",
-        conn, params=(st.session_state['user'],)
-    )
-    conn.close()
+    df = get_riwayat_data(st.session_state['user'], DB_PATH)
 
     if df.empty:
         st.info("Belum ada riwayat skrining. Lakukan skrining pertama Anda di menu 🔍.")
         return
 
-    avg_conf     = df['confidence'].mean()
+    avg_conf = df['confidence'].mean()
     st.caption(f"Rata-rata confidence: **{avg_conf:.1f}%**")
     st.divider()
 
