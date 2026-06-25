@@ -3,4 +3,4 @@ pillow
 numpy
 pandas
 opencv-python-headless
-tensorflow
+tensorflow-cpu
