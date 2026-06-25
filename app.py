@@ -110,7 +110,7 @@ def load_nailsense_model():
         return None, str(e)
 
 model, model_error = load_nailsense_model()
-MODEL_N_INPUTS     = len(model.inputs) if model is not None else 0
+MODEL_N_INPUTS = len(model.get_inputs()) if model is not None else 0
 
 # ==========================================
 # 2. CSS & TAMPILAN 
