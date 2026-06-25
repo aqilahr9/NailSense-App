@@ -1046,7 +1046,6 @@ def page_skrining():
             elif res_state["status"] == "sukses":
                 result = res_state["data"]
                 st.image(res_state["cropped_preview"], caption="Area kuku yang dianalisis", use_container_width=True)
-                st.markdown(f"**Tingkat Keyakinan (Hybrid Confidence):** `{result['confidence']:.2f}%`")
 
                 if result["hasil"] == "Anemia":
                     st.error("🔴 **Hasil: Indikasi risiko Anemia**")
@@ -1275,11 +1274,13 @@ NailSense adalah alat bantu skrining awal — **bukan pengganti pemeriksaan medi
 # ==========================================
 # 10. HALAMAN RIWAYAT
 # ==========================================
-@st.cache_data
 def get_riwayat_data(username, db_path):
+    # Membuka koneksi database
     conn = sqlite3.connect(db_path)
+    
+    # Menambahkan LIMIT 50 di akhir query agar loading super cepat
     df = pd.read_sql_query(
-        "SELECT tanggal, hasil, confidence FROM history WHERE username=? ORDER BY id DESC",
+        "SELECT tanggal, hasil, confidence FROM history WHERE username=? ORDER BY id DESC LIMIT 50",
         conn,
         params=(username,)
     )
@@ -1290,28 +1291,33 @@ def page_riwayat():
     render_logo()
     render_page_title("📊 Riwayat Skrining")
 
+    # Mengambil maksimal 50 data riwayat terbaru
     df = get_riwayat_data(st.session_state['user'], DB_PATH)
 
+    # Validasi jika data riwayat kosong
     if df.empty:
         st.info("Belum ada riwayat skrining. Lakukan skrining pertama Anda di menu 🔍.")
         return
 
+    # Menghitung rata-rata tingkat keyakinan (confidence) dari 50 data terakhir
     avg_conf = df['confidence'].mean()
-    st.caption(f"Rata-rata confidence: **{avg_conf:.1f}%**")
+    st.caption(f"Rata-rata confidence: **{avg_conf:.1f}%** (50 data terakhir)")
     st.divider()
 
+    # Membuat visualisasi grafik tren
     df_rev = df.copy()
     df_rev['Tren'] = df_rev['hasil'].apply(lambda x: 1 if x == 'Anemia' else 0)
     df_rev = df_rev.iloc[::-1].reset_index(drop=True)
     st.markdown("**Tren Hasil Skrining** (1 = Anemia, 0 = Normal)")
     st.line_chart(data=df_rev, y='Tren', height=150)
 
+    # Menampilkan tabel data riwayat
     st.dataframe(
         df[['tanggal','hasil','confidence']].rename(columns={
             'tanggal':'Tanggal', 'hasil':'Hasil', 'confidence':'Confidence (%)'}),
         use_container_width=True
     )
-
+    
 # ==========================================
 # 11. HALAMAN PROFIL
 # ==========================================
