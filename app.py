@@ -8,14 +8,14 @@ import pandas as pd
 import streamlit as st
 import cv2
 import base64
-import tf_keras as keras
+import onnxruntime as ort
 
 # ==========================================
 # 1. KONFIGURASI UTAMA & DATABASE
 # ==========================================
 st.set_page_config(page_title="NailSense App", page_icon="💅", layout="centered")
 
-MODEL_PATH = r"C:\Users\WN11\OneDrive\Documents\NAILSENSE\nailsense_hibrida_softmaxfixx.keras"
+MODEL_PATH = "model.onnx"
 DB_PATH    = "nailsense_data.db"
 
 # =================================================================
@@ -104,15 +104,10 @@ def load_nailsense_model():
     if not os.path.exists(MODEL_PATH):
         return None, f"File model tidak ditemukan di:\n{MODEL_PATH}"
     try:
-        m        = keras.models.load_model(MODEL_PATH)
-        n_inputs = len(m.inputs)
-        if n_inputs not in (1, 2):
-            return None, (
-                f"Model memiliki {n_inputs} input. Hanya 1 atau 2 input yang didukung."
-            )
+        m = ort.InferenceSession(MODEL_PATH)
         return m, None
     except Exception as e:
-        return None, f"Gagal memuat model: {str(e)}"
+        return None, str(e)
 
 model, model_error = load_nailsense_model()
 MODEL_N_INPUTS     = len(model.inputs) if model is not None else 0
@@ -714,10 +709,18 @@ def predict_anemia(img_array, tabular_array) -> dict:
     try:
         img_in = img_array.astype(np.float32)
 
-        if MODEL_N_INPUTS == 2 and tabular_array is not None:
-            pred = model.predict([img_in, tabular_array.astype(np.float32)], verbose=0)
+        # Ambil nama input dari model ONNX
+        input_names = [inp.name for inp in model.get_inputs()]
+
+        if MODEL_N_INPUTS == 2 and tabular_array is not None and len(input_names) >= 2:
+            feeds = {
+                input_names[0]: img_in,
+                input_names[1]: tabular_array.astype(np.float32)
+            }
         else:
-            pred = model.predict(img_in, verbose=0)
+            feeds = {input_names[0]: img_in}
+
+        pred = model.run(None, feeds)[0]  # [0] = output pertama
 
         skor_normal = float(pred[0][0])
         skor_anemia = float(pred[0][1])
@@ -1365,7 +1368,7 @@ def page_profil():
             if st.button("Tidak, Batal", type="secondary", key="logout_tidak_fix", use_container_width=True):
                 st.session_state['logout_confirm'] = False
                 st.rerun()
-                
+
 # ==========================================
 # 12. ROUTER & NAVIGASI BAWAH
 # ==========================================
