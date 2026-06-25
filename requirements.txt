@@ -3,5 +3,6 @@ Pillow
 numpy
 pandas
 opencv-python-headless
+tensorflow-cpu
 keras
 h5py
