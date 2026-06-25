@@ -8,7 +8,7 @@ import pandas as pd
 import streamlit as st
 import cv2
 import base64
-import keras
+import tensorflow as tf
 
 # ==========================================
 # 1. KONFIGURASI UTAMA & DATABASE
@@ -104,7 +104,7 @@ def load_nailsense_model():
     if not os.path.exists(MODEL_PATH):
         return None, f"File model tidak ditemukan di:\n{MODEL_PATH}"
     try:
-        m        = keras.models.load_model(MODEL_PATH)
+        m        = tf.keras.models.load_model(MODEL_PATH)
         n_inputs = len(m.inputs)
         if n_inputs not in (1, 2):
             return None, (
