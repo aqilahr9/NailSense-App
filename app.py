@@ -8,7 +8,7 @@ import pandas as pd
 import streamlit as st
 import cv2
 import base64
-import keras
+from tensorflow import keras
 
 # ==========================================
 # 1. KONFIGURASI UTAMA & DATABASE
