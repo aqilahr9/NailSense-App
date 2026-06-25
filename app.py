@@ -1049,7 +1049,7 @@ def page_skrining():
                 st.markdown(f"**Tingkat Keyakinan (Hybrid Confidence):** `{result['confidence']:.2f}%`")
 
                 if result["hasil"] == "Anemia":
-                    st.error("🔴 **Hasil: Terindikasi Anemia**")
+                    st.error("🔴 **Hasil: Indikasi risiko Anemia**")
                     st.markdown("""
 **Apa artinya?**
 Bantalan kuku Anda terdeteksi lebih pucat dari normal, yang bisa menjadi tanda anemia (kekurangan hemoglobin/zat besi).
