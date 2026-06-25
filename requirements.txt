@@ -3,5 +3,4 @@ Pillow
 numpy
 pandas
 opencv-python-headless
-tf-keras
-h5py
+onnxruntime
