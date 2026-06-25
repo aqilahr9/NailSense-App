@@ -1,6 +1,6 @@
-streamlit
-pillow
-numpy
-pandas
-opencv-python-headless
-https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow_cpu-2.15.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+streamlit>=1.30.0
+Pillow>=10.0.0
+numpy>=1.24.0
+pandas>=2.0.0
+opencv-python-headless>=4.8.0
+tensorflow>=2.13.0
